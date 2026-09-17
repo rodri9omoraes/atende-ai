@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8">
+        <title>Assistente Social</title>
+        <style>
+            * { box-sizing: border-box; }
+
+            body {
+                font-family: 'Segoe UI', Arial, sans-serif;
+                background: linear-gradient(135deg, #F0E68C, #f1ebad);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                margin: 0;
+            }
+
+            .card {
+                background: white;
+                border-radius: 16px;
+                box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+                padding: 40px;
+                width: 440px;
+                text-align: center;
+            }
+
+            h1 { color: #333; margin-bottom: 20px; }
+
+            #alerta {
+                font-size: 17px;
+                margin-bottom: 20px;
+                padding: 16px;
+                border-radius: 10px;
+                display: none;
+                background: #fff3cd;
+                color: #856404;
+                text-align: center;
+            }
+
+            #alerta strong {
+                display: block;
+                margin-bottom: 6px;
+                font-size: 15px;
+            }
+
+            .botoes {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 30px;
+            }
+
+            button {
+                flex: 1;
+                font-size: 15px;
+                padding: 14px;
+                cursor: pointer;
+                border: none;
+                border-radius: 10px;
+                color: white;
+                font-weight: 600;
+                transition: 0.2s;
+            }
+
+            .sim { background: #28a745; }
+            .sim:hover { background: #1e7e34; }
+            .nao { background: #dc3545; }
+            .nao:hover { background: #b02a37;}
+            .status-btn { background: #6c757d; width: 100%; margin-top: 40px; }
+
+        </style>
+    </head>
+
+    <body>
+        <div class="card">
+            <h1>Painel - Assistente Social</h1>
+            <div id="alerta"></div>
+
+            <div class="botoes">
+                <button class="sim" onclick="responder(true)">✅ Pode Entrar</button>
+                <button class="nao" onclick="responder(false)">⏳ Peça para aguardar</button>
+            </div>
+
+            <button class="status-btn" onclick="mudarStatus()">Alternar:<br>Estou na Sala / Saí da Sala</button>
+            <p id="statusAtual"></p>
+        </div>
+        
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+                const socket = io();
+                let statusAtual = 'sala';
+
+                socket.on('status-atual', (status) => {
+                    statusAtual = status;
+                    document.getElementById('statusAtual').textContent = 'Status atual: ' + (status === 'sala' ? '🟢 Na Sala' : '🔴 Fora da Sala');
+                });
+
+                socket.on('nova-chamada', (dados) => {
+                    dados = dados || { nome: 'Alguém', mensagem: '' };
+                    const el = document.getElementById('alerta');
+                    el.innerHTML = `🔔 <strong>${dados.nome} <br> está esperando na recepção!</strong><br>${dados.mensagem ? dados.mensagem : '(sem mensagem)'}`;
+                    el.style.display = 'block';
+                });
+
+                function responder(podeAtender){
+                    socket.emit('resposta', podeAtender);
+                    document.getElementById('alerta').style.display = 'none';
+                }
+                
+                function mudarStatus() {
+                    statusAtual = statusAtual === 'sala' ? 'fora' : 'sala';
+                    socket.emit('mudar-status', statusAtual);
+                }
+        </script>
+    </body>
+</html>
