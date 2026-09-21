@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "recepcao": "electron main-recepcao.js",
+    "assistente": "electron main-assistente.js"   
   },
   "keywords": [],
   "author": "",
@@ -13,5 +15,8 @@
   "dependencies": {
     "express": "^5.2.1",
     "socket.io": "^4.8.3"
+  },
+  "devDependencies": {
+    "electron": "^44.4.3"
   }
 }
