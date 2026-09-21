@@ -3,51 +3,98 @@
     <head>
         <meta charset="UTF-8">
         <title> Atende Aí </title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
         <style>
+
+            :root {
+                --bg: #F0E68C;
+                --card-bg: #ffffff;
+                --border: #eef0f4;
+                --text-primary: #1f2430;
+                --text-secondary: #6b7280;
+                --primary: #5b6ee1;
+                --primary-hover: #4457d1;
+                --sucess: #28a745;
+                --sucess-hover: #1e7e34;
+                --danger: #dc3545;
+                --danger-hover: #b02a37;
+                --alerta-bg: #fff8ec;
+                --alerta-border: #f5b942;
+                --pill-on-bg: #e8f8f0;
+                --pill-on-text: #1a8f5c;
+                --pill-off-bg: #fdecee;
+                --pill-off-text: #c9394a;
+                --radius: 16px;
+            }
+
             * { box-sizing: border-box; }
 
             body {
-                font-family: 'Segoe UI', Arial, sans-serif;
-                background: linear-gradient(135deg, #F0E68C, #f1ebad);
+                font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+                background: var(--bg);
                 display: flex;
                 justify-content: center;
                 align-items: center;
                 min-height: 100vh;
                 margin: 0;
+                color: var(--text-primary);
             }
 
             .card {
-                background: white;
-                border-radius: 16px;
-                box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-                padding: 40px;
+                background: var(--card-bg);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                box-shadow: 0 10px 30px rgba(15, 23, 42 ,0.06);
+                padding: 44px;
                 width: 440px;
                 text-align: center;
             }
 
-            h1 { color: #333; margin-bottom: 20px; }
+            h1 { font-size: 22px; font-weight 700; margin: 0 0 4px; }
+
+            .subtitulo { color: var(--text-secondary); font-size: 14px; margin: 0 0 24px; }
 
             #alerta {
-                font-size: 17px;
-                margin-bottom: 20px;
-                padding: 16px;
-                border-radius: 10px;
                 display: none;
-                background: #fff3cd;
-                color: #856404;
+                background: var(--alerta-bg);
+                border: 1px solid var(--alerta-border);
+                border-radius: 14px;
+                padding: 20px;
+                margin-bottom: 22px;
                 text-align: center;
+                font-size: 17px;
             }
 
-            #alerta strong {
+            #nomeChamada {
+                font-size: 24px;
+                font-weight: 700;
+                color: var(--text-primary);
+                text-align: center;
+                margin-bottom: 10px;
+            }
+
+            #mensagemChamada {
+                font-size: 16px;
+                background: white;
+                padding: 12px 14px;
+                border-radius: 8px;
+                color: var(--text-secondary);
+                font-style: italic;
+                border-left: 3px solid var(--alerta-border);
+            }
+
+            /*#alerta strong {
                 display: block;
                 margin-bottom: 6px;
                 font-size: 15px;
-            }
+            }*/
 
             .botoes {
                 display: flex;
                 gap: 10px;
-                margin-bottom: 30px;
+                margin-bottom: 15px;
             }
 
             button {
@@ -59,14 +106,52 @@
                 border-radius: 10px;
                 color: white;
                 font-weight: 600;
+                font-family: inherit;
                 transition: 0.2s;
             }
 
-            .sim { background: #28a745; }
-            .sim:hover { background: #1e7e34; }
-            .nao { background: #dc3545; }
-            .nao:hover { background: #b02a37;}
-            .status-btn { background: #6c757d; width: 100%; margin-top: 40px; }
+            .sino {
+                font-size: 40px;
+                text-align: center;
+                margin-bottom: 8px;
+                animation: balancar 0.6s ease-in-out infinite;
+            }
+
+            @keyframes balancar {
+                0%, 100% { transform: rotate(0deg); }
+                20% { transform: rotate(15deg); }
+                40% { transform: rotate(-15deg); }
+                60% { transform: rotate(8deg); }
+                80% { transform: rotate(-8deg); }
+            }
+
+            .sim { background: var(--sucess); }
+            .sim:hover { background: var(--sucess-hover); }
+            .nao { background: var(--danger); }
+            .nao:hover { background: var(--danger-hover); }
+
+            .proximo-btn { background: #62c5d4; }
+            .proximo-btn:hover { background: #117a8b; }
+
+            .status-btn { background: #6c757d; width: 100%; margin-top: 10px; }
+            .status-btn:hover { background: #545b62; }
+
+            .status-pill { 
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 6px 14px;
+                border-radius: 999px;
+                font-size: 12px;
+                font-weight: 600;
+                margin-top: 14px;
+            }
+
+            .status-pill .dot { width: 7px; height: 7px; border-radius: 50%; }
+            .sala { background: var(--pill-on-bg); color: var(--pill-on-text); }
+            .sala .dot { background: var(--pill-on-text); }
+            .fora { background: var(--pill-off-bg); color: var(--pill-off-text); }
+            .fora { background: var(--pill-off-text); }
 
         </style>
     </head>
@@ -74,38 +159,85 @@
     <body>
         <div class="card">
             <h1>Atende Aí</h1>
-            <p style="color: #666; margin-top: -15px;">Assistente Social</p>
-            <div id="alerta"></div>
+            <p class="subtitulo">Assistente Social</p>
+            <div id="alerta">
+                <div class="sino">🔔</div>
+                <div id="nomeChamada"></div>
+                <div id="mensagemChamada"></div>
+            </div>
 
             <div class="botoes">
                 <button class="sim" onclick="responder(true)">✅ Pode Entrar</button>
                 <button class="nao" onclick="responder(false)">⏳ Peça para aguardar</button>
             </div>
 
+            <button class="proximo-btn" onclick="proximoAtendimento()">📋 Próximo Atendimento</button>
+            <br><br>
             <button class="status-btn" onclick="mudarStatus()">Alternar:<br>Estou na Sala / Saí da Sala</button>
-            <p id="statusAtual"></p>
+            
+            <div id="status" class="status-pill">
+                <span class="dot"></span>
+                <span id="statusTexto"></span>
+            </div>
         </div>
         
         <script src="/socket.io/socket.io.js"></script>
         <script>
                 const socket = io();
                 let statusAtual = 'sala';
+                let audioCtx = null;
 
                 socket.on('status-atual', (status) => {
                     statusAtual = status;
                     document.getElementById('statusAtual').textContent = 'Status atual: ' + (status === 'sala' ? '🟢 Na Sala' : '🔴 Fora da Sala');
                 });
 
+                function iniciarAudio() {
+                    if (!audioCtx){
+                        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    } if (audioCtx.state === 'suspended'){
+                        audioCtx.resume();
+                    }
+                }
+                
+                function tocarSom() {
+                    if (!audioCtx) return;
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+                    osc.frequency.setValueAtTime(1046.5, audioCtx.currentTime + 0.12);
+
+                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.5);
+                }
+
+                document.addEventListener('click', iniciarAudio, { once:true });
+                
                 socket.on('nova-chamada', (dados) => {
                     dados = dados || { nome: 'Alguém', mensagem: '' };
-                    const el = document.getElementById('alerta');
-                    el.innerHTML = `🔔 <strong>${dados.nome} <br> está esperando na recepção!</strong><br>${dados.mensagem ? dados.mensagem : '(sem mensagem)'}`;
-                    el.style.display = 'block';
+                    document.getElementById('nomeChamada').textContent = dados.nome;
+                    document.getElementById('mensagemChamada').textContent = dados.mensagem ? dados.mensagem : '(sem mensagem)';
+                    document.getElementById('alerta').style.display = 'block';
+                    tocarSom();
                 });
 
                 function responder(podeAtender){
                     socket.emit('resposta', podeAtender);
+                }
+
+                function proximoAtendimento() {
                     document.getElementById('alerta').style.display = 'none';
+                    document.getElementById('nomeChamada').textContent = '';
+                    document.getElementById('mensagemChamada').textContent = '';
+                    socket.emit('proximo-atendimento');
                 }
                 
                 function mudarStatus() {

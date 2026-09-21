@@ -3,74 +3,134 @@
     <head>
         <meta chatset="UTF-8">
         <title> Atende Aí </title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
         <style>
+            :root {
+                --bg: #ff6b80;
+                --card-bg: #ffffff;
+                --border: #eef0f4;
+                --text-primary: #1f2430;
+                --text-secondary: #6b7280;
+                --primary: #5b6ee1;
+                --primary-hover: #4457d1;
+                --pill-on-bg: #e8f8f0;
+                --pill-on-text: #1a8f5c;
+                --pill-off-bg: #fdecee;
+                --pill-off-text: #c9394a;
+                --radius: 16px;
+            }
+
             * { box-sizing: border-box; }
 
             body {
-                font-family: 'Segoe UI', Arial, sans-serif;
-                background: linear-gradient(135deg, #e8f0fe, #f4f4f4);
+                font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+                background: var(--bg);
                 display: flex;
                 justify-content: center;
                 align-items: center;
                 min-height: 100vh;
                 margin: 0;
+                color: var(--text-primary);
             }
 
             .card {
-                background: white;
-                border-radius: 16px;
-                box-shadow: 0 8px 24px rbga(0,0,0,0.1);
-                padding: 40px;
+                background: var(--card-bg);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+                padding: 44px;
                 width: 420px;
                 text-align: center;
             }
             
-            h1 { color: #333; margin-bottom: 20px; }
-
-            #status {
-                font-size: 18px;
-                margin-bottom: 25px;
-                padding: 12px;
-                border-radius: 10px;
-                font-weight: 600;
-                transition: 0.3s;
+            h1 { 
+                font-size: 22px;
+                font-weight: 700;
+                margin: 0 0 4px;
             }
 
-            .sala { background: #d4edda; color: #155724;}
-            .fora { background: #f8d7da; color: #721c24;}
+            .subtitulo {
+                color: var(--text-secondary);
+                font-size: 14px;
+                margin: 0 0 24px;
+            }
+            
+            .status-pill {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 16px;    
+                border-radius: 999px;
+                font-size: 13px;
+                font-weight: 600;
+                margin-bottom: 28px;
+                transition: 0.2s;
+            }
+
+            .status-pill .dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+            }
+
+            .sala { background: var(--pill-on-bg); color: var(--pill-on-text); }
+            .sela .dot { background: var(--pill-on-text); }
+            .fora { background: var(--pill-off-bg); color: var(--pill-off-text); }
+            .fora .dot { background: var(--pill-off-text); }
+
+            label {
+                display: block;
+                text-align: left;
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--text-secondary);
+                margin-bottom: 6px;
+            }
 
             input, textarea {
                 width: 100%;
-                padding: 12px;
-                margin-bottom: 14px;
-                border: 1px solid #ddd;
-                border-radius: 8px;
-                font-size: 15px;
+                padding: 12px 14px;
+                margin-bottom: 18px;
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                font-size: 14px;
                 font-family: inherit;
+                background: #fbfbfb;
+                transition: 0.2s;
+            }
+
+            input:focus, textarea:focus {
+                outline: none;
+                border-color: var(--primary);
+                background: white;
             }
 
             textarea { resize: vertical; min-height: 70px; }
 
             button {
                 width: 100%;
-                font-size: 17px;
+                font-size: 15px;
                 padding: 14px;
                 cursor: pointer;
                 border: none;
                 border-radius: 10px;
-                background: #007bff;
+                background: var(--primary);
                 color: white;
                 font-weight: 600;
+                font-family: inherit;
                 transition: 0.2s;
             }
 
-            button:hover { background: #0056b3; }
+            button:hover { background: var(--primary); }
 
             #resposta {
-                font-size: 17px;
-                margin-top: 20px;
+                font-size: 14px;
+                margin-top: 18px;
                 font-weight: 600;
-                min-height: 24px;
+                min-height: 20px;
+                color: var(--text-secondary);
             }
         </style>
     </head>
@@ -79,13 +139,19 @@
         
         <div class="card">
             <h1>Atende Aí</h1>
-            <p style="color: #666; margin-top: -15px;">Recepção</p>
+            <p class="subtitulo">Recepção</p>
             
-            <div id="status">Verificando Status...</div>
+            <div id="status" class="status-pill">
+                <span class="dot"></span>
+                <span id="statusTexto">Verificando Status...</span>
+            </div>
             
             <br>
+            <label for="nome">Nome:</label>
             <input type="text" id="nome" placeholder="Nome da Pessoa">
-            <textarea id="mensagem" placeholder="O que ela deseja trata com a Assistente Social?"></textarea>
+
+            <label for="mensagem">O que ela deseja falar?</label>
+            <textarea id="mensagem" placeholder="Breve Resumo"></textarea>
             <br>
 
             <button onclick="chamar()"> Avisar Assistente Social</button>
@@ -98,18 +164,25 @@
 
             socket.on('status-atual', (status) => {
                 const el = document.getElementById('status');
+                const texto = document.getElementById('statusTexto');
                 if (status === 'sala') {
-                    el.textContent = '🟢 Estou na sala';
-                    el.className = 'sala';
+                    el.className = 'status-pill sala';
+                    el.textContent = '🟢 Estou na sala';                    
                 } else {
-                    el.textContent = '🔴 NÃO estou na sala';
-                    el.className = 'fora';
+                    el.className = 'status-pill fora';
+                    el.textContent = '🔴 NÃO estou na sala';                    
                 }
             });
 
             socket.on('resposta-recebida', (podeAtender) => {
                 const el = document.getElementById('resposta');
-                el.textContent = podeAtender ? '✅ Pode encaminhar!' : '⏳ Peça para aguarda, um instante';
+                el.textContent = podeAtender ? '✅ Pode encaminhar!' : '⏳ Peça para aguardar um instante';
+            });
+
+            socket.on('atendimento-finalizado', () => {
+                document.getElementById('resposta').textContent = '✅ Atentimento concluído!'
+                document.getElementById('nome').value = '';
+                document.getElementById('mensagem').value = '';
             });
 
             function chamar(){

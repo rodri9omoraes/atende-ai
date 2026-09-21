@@ -35,6 +35,10 @@ io.on('connection', (Socket) => {
         io.emit('status-atual', status);
     });
 
+    Socket.on('proximo-atendimento', () => {
+        io.emit('atendimento-finalizado');
+    })
+
     Socket.on('disconnect', () => {
         console.log('Desconectou:', Socket.id);
     });
