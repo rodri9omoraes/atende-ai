@@ -1,6 +1,16 @@
 const { app, BrowserWindow } = require('electron');
+const fs = require('fs');
+const path = require('path');
+
+function lerConfig() {
+    const configPath = path.join(__dirname, 'config.json');
+    const conteudo = fs.readFileSync(configPath, 'utf-8');
+    return JSON.parse(conteudo);
+}
 
 function criarJanela() {
+    const config = lerConfig();
+
     const janela = new BrowserWindow({
         width: 480,
         height: 750,
@@ -9,7 +19,7 @@ function criarJanela() {
         resizable: true
     });
 
-    janela.loadURL('http://localhost:3000/assistente.html');
+    janela.loadURL(`${config.servidorURL}/assistente.html`);
 }
 
 app.whenReady().then(() => {

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Atende Aí - Configuração</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f4f6fb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(15,23,42,0.08);
+      padding: 36px;
+      width: 340px;
+      text-align: center;
+    }
+    h1 { font-size: 20px; margin-bottom: 4px; }
+    p { color: #6b7280; font-size: 13px; margin-bottom: 24px; }
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 12px;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      color: white;
+      background: #5b6ee1;
+      cursor: pointer;
+    }
+    button:hover { background: #4457d1; }
+    #painelServidor { display: none; margin-top: 16px; text-align: left; }
+    #painelServidor label { font-size: 12px; font-weight: 600; color: #6b7280; }
+    #painelServidor input {
+      width: 100%; padding: 10px; margin-top: 6px; margin-bottom: 14px;
+      border: 1px solid #eef0f4; border-radius: 8px; font-size: 13px;
+    }
+    .confirmar { background: #2fb380; }
+    .confirmar:hover { background: #249368; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Atende Aí</h1>
+    <p>Este computador é a Recepção ou a Assistente Social?</p>
+
+    <button onclick="escolherRecepcao()">🖥️ Sou a Recepção</button>
+    <button onclick="mostrarPainelAssistente()">🧑‍💼 Sou a Assistente Social</button>
+
+    <div id="painelServidor">
+      <label>Endereço do computador da Recepção</label>
+      <input type="text" id="servidorURL" placeholder="ex: RECEPCAO ou 192.168.1.50" value="RECEPCAO">
+      <button class="confirmar" onclick="confirmarAssistente()">Confirmar</button>
+    </div>
+  </div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+
+    function escolherRecepcao() {
+      ipcRenderer.send('papel-selecionado', { papel: 'recepcao' });
+    }
+
+    function mostrarPainelAssistente() {
+      document.getElementById('painelServidor').style.display = 'block';
+    }
+
+    function confirmarAssistente() {
+      const ip = document.getElementById('servidorURL').value.trim();
+      if (!ip) {
+        alert('Informe o endereço do computador da recepção.');
+        return;
+      }
+      ipcRenderer.send('papel-selecionado', {
+        papel: 'assistente',
+        servidorURL: `http://${ip}:3000`
+      });
+    }
+  </script>
+</body>
+</html>

@@ -50,6 +50,8 @@
                 padding: 44px;
                 width: 440px;
                 text-align: center;
+                max-height: 90vh;
+                overflow: auto;
             }
 
             h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; }
@@ -145,13 +147,14 @@
                 font-size: 12px;
                 font-weight: 600;
                 margin-top: 14px;
+                transition: 0.2s;
             }
 
             .status-pill .dot { width: 7px; height: 7px; border-radius: 50%; }
             .sala { background: var(--pill-on-bg); color: var(--pill-on-text); }
             .sala .dot { background: var(--pill-on-text); }
             .fora { background: var(--pill-off-bg); color: var(--pill-off-text); }
-            .fora { background: var(--pill-off-text); }
+            .fora .dot { background: var(--pill-off-text); }
 
         </style>
     </head>
@@ -176,7 +179,7 @@
             <button class="status-btn" onclick="mudarStatus()">Alternar:<br>Estou na Sala / Saí da Sala</button>
             
             <div id="status" class="status-pill">
-                <span class="dot"></span>
+                
                 <span id="statusTexto"></span>
             </div>
         </div>
@@ -184,12 +187,21 @@
         <script src="/socket.io/socket.io.js"></script>
         <script>
                 const socket = io();
+                const { ipcRenderer } = require('electron');
                 let statusAtual = 'sala';
                 let audioCtx = null;
 
                 socket.on('status-atual', (status) => {
                     statusAtual = status;
-                    document.getElementById('statusAtual').textContent = 'Status atual: ' + (status === 'sala' ? '🟢 Na Sala' : '🔴 Fora da Sala');
+                    const el = document.getElementById('status');
+                    const texto = document.getElementById('statusTexto');
+                    if (status === 'sala') {
+                        el.className = 'status-pill sala';
+                        texto.textContent = '🟢 Na Sala';
+                    } else {
+                        el.className = 'status-pill fora';
+                        texto.textContent = '🔴 Fora da Sala';
+                    }
                 });
 
                 function iniciarAudio() {
@@ -227,6 +239,7 @@
                     document.getElementById('mensagemChamada').textContent = dados.mensagem ? dados.mensagem : '(sem mensagem)';
                     document.getElementById('alerta').style.display = 'block';
                     tocarSom();
+                    ipcRenderer.send('trazer-para-frente');
                 });
 
                 function responder(podeAtender){

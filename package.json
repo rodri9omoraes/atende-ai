@@ -1,22 +1,52 @@
 {
-  "name": "sistema-chamada",
+  "name": "atende-ai",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "recepcao": "electron main-recepcao.js",
-    "assistente": "electron main-assistente.js"   
+    "start": "electron main.js",
+    "dist": "electron-builder"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "auto-launch": "^5.0.6",
     "express": "^5.2.1",
     "socket.io": "^4.8.3"
   },
+  
+  "build": {
+    "appId": "com.atendeai.app",
+    "productName": "Atende Aí",
+    "files": [
+      "main.js",
+      "index.js",
+      "public/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    
+    "directories": {
+      "output": "dist"
+    },
+    
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icone.ico"
+    },
+
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    }
+  },
+
   "devDependencies": {
-    "electron": "^44.4.3"
+    "electron": "^44.4.3",
+    "electron-builder": "^26.15.3"
   }
 }
