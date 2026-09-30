@@ -24,4 +24,4 @@ Sistema de aviso em tempo real entre recepção e assistente social para sala de
 - [Socket.io](https://socket.io/)
 
 ## 📄 Licença
-Este projeto está sob a licença ISC.
+Este projeto está sob a licença MIT.
