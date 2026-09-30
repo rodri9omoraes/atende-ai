@@ -1,7 +1,7 @@
 const { app, BrowserWindow, ipcMain, Tray, Menu, screen } = require('electron');
 const fs = require('fs');
 const path = require('path');
-const AutoLaunch = require('auto-launch');
+//const AutoLaunch = require('auto-launch');
 
 let tray = null;
 let janela;
@@ -41,8 +41,11 @@ function abrirTelaSelecaoPapel() {
 
 function abrirApp(config) {
   const { x: telaX, y: telaY, width: larguraTela, height: alturaTela } = screen.getPrimaryDisplay().workArea;
-  const larguraJanela = 500;
-  const alturaJanela = 800;
+  const larguraJanela = Math.min(500, larguraTela - 40);
+  const alturaJanela = Math.min(800, alturaTela - 40);
+  
+  //const larguraJanela = 500; TAMANHOS ANTIGOS
+  //const alturaJanela = 800;
 
   const opcoesJanela = {
     width: larguraJanela,
@@ -56,8 +59,9 @@ function abrirApp(config) {
 
   //só a assistente abre fixada no canto
   if (config.papel === 'assistente') {
-    opcoesJanela.x = telaX + larguraTela - larguraJanela - 15;
-    opcoesJanela.y = telaY + alturaTela - alturaJanela - 80;
+    opcoesJanela.x = Math.max(telaX, telaX + larguraTela - larguraJanela - 15);
+    opcoesJanela.y = Math.max(telaY, telaY + alturaTela - alturaJanela - 80);
+    opcoesJanela.show = false;
   }
   
   janela = new BrowserWindow(opcoesJanela);
@@ -66,9 +70,21 @@ function abrirApp(config) {
     require('./index.js'); // liga o servidor automaticamente
     janela.loadURL('http://localhost:3000/recepcao.html');
   } else {
-    janela.loadURL(`${config.servidorURL}/assistente.html`);
+    //1. RECONEXÃO DA JANELA PRINCIPAL
+    const urlAssistente = `${config.servidorURL}/assistente.html`;
+    janela.loadURL(urlAssistente);
+
+    let tentativas = 0;
+    janela.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
+      tentativas++;
+      console.log(`[Assistente] Tentativa ${tentativas}: Servidor não encontrado. Reconectando em 5s...`);
+      setTimeout(() => {
+        janela.loadURL(validatedURL);
+      }, 5000);
+    });
+
     configurarBandeja(config);
-    abrirWidget(config);
+    abrirWidget(config); //chama a função que cria o widget
 
     //Em vez de fechar, esconde a janela
     janela.on('close', (event) => {
@@ -114,7 +130,16 @@ function abrirWidget(config) {
     webPreferences: { nodeIntegration: true, contextIsolation: false }
   });
 
-  janelaWidget.loadURL(`${config.servidorURL}/widget-status.html`);
+  const urlWidget = `${config.servidorURL}/widget-status.html`;
+  janelaWidget.loadURL(urlWidget);
+
+  //2. RECONEXÃO DO WIDGET (Colocando aqui para garantir que a janela já exista)
+  janelaWidget.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
+    console.log('[Widget] Falhou ao carregar. Tentando reconectar em 5s...');
+    setTimeout(() => {
+      janelaWidget.loadURL(validatedURL);
+    }, 5000);
+  });
 }
 
 ipcMain.on('trazer-para-frente', () => {
@@ -128,10 +153,23 @@ ipcMain.on('trazer-para-frente', () => {
 ipcMain.on('papel-selecionado', (event, dados) => {
   salvarConfig(dados);
 
-  const autoLauncher = new AutoLaunch({ name: 'Atende Aí' });
+  /*const autoLauncher = new AutoLaunch({ name: 'Atende Aí' });
   autoLauncher.isEnabled().then((habilitado) => {
     if (!habilitado) autoLauncher.enable();
+  });*/
+
+  app.setLoginItemSettings({
+    openAtLogin: true,
+    openAsHidden: false,
+    path: process.execPath,
+    args: []
   });
+
+  const settings = app.getLoginItemSettings();
+  console.log("=== DIAGNÓSTICO DE INICIALIZAÇÃO ===");
+  console.log("Caminho do Executável:", process.execPath);
+  console.log("Status openAtLogin:", settings.openAtLogin);
+  console.log("======================================");
 
   janela.close();
   abrirApp(dados);
